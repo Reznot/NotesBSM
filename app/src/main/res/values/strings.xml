@@ -6,5 +6,5 @@
     <string name="saveNote">Zapisz</string>
     <string name="prevPassword">Obecne haslo</string>
     <string name="newPassword">Nowe haslo</string>
-    <string name="note">Notatka</string>
+    <string name="note">Pusta notatka</string>
 </resources>
