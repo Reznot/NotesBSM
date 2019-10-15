@@ -8,9 +8,11 @@
 
     <EditText
         android:id="@+id/noteText"
+        style="@android:style/Widget.Material.Light.EditText"
         android:layout_width="291dp"
         android:layout_height="78dp"
         android:layout_marginTop="140dp"
+        android:autofillHints=""
         android:ems="10"
         android:gravity="start|top"
         android:inputType="textMultiLine"
