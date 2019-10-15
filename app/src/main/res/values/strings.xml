@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">NSAProofNotes</string>
+    <string name="unlock_note">Otworz notatke</string>
+    <string name="password">Podaj haslo</string>
 </resources>
