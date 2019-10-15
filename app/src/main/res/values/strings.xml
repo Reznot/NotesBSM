@@ -2,4 +2,8 @@
     <string name="app_name">NSAProofNotes</string>
     <string name="unlock_note">Otworz notatke</string>
     <string name="password">Podaj haslo</string>
+    <string name="changePassword">Zmien haslo</string>
+    <string name="saveNote">Zapisz</string>
+    <string name="prevPassword">Obecne haslo</string>
+    <string name="newPassword">Nowe haslo</string>
 </resources>
