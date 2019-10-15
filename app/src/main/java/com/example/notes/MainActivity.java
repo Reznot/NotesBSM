@@ -10,6 +10,7 @@ import android.widget.Button;
 public class MainActivity extends AppCompatActivity {
 
     private Button btnUnlockNote;
+    static String noteText = "Siemanko to moja super notatka";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
