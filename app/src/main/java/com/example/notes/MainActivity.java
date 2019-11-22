@@ -13,6 +13,10 @@ import android.widget.EditText;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+
 public class MainActivity extends AppCompatActivity {
 
     private EditText passwordField;
@@ -37,10 +41,18 @@ public class MainActivity extends AppCompatActivity {
         passwordField = findViewById(R.id.passwordField);
         btnUnlockNote = (Button) findViewById(R.id.unlock_button);
 
+        final SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("com.example.notes", Context.MODE_PRIVATE);
+
+        String salt = sharedPreferences.getString("salt", null);
+        System.out.println(salt);
+        if (salt == null) {
+            byte[] newSalt = getSalt();
+            sharedPreferences.edit().putString("salt", new String(newSalt, StandardCharsets.UTF_8)).apply();
+        }
+
         btnUnlockNote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("com.example.notes", Context.MODE_PRIVATE);
                 storedPassword = sharedPreferences.getString("password", null);
                 if(storedPassword == null) {
                     sharedPreferences.edit().putString("password", passwordField.getText().toString()).apply();
@@ -61,5 +73,12 @@ public class MainActivity extends AppCompatActivity {
         passwordField.setText("");
         Intent intent = new Intent(this, note_screen.class);
         startActivity(intent);
+    }
+
+    private static byte[] getSalt() {
+        SecureRandom random = new SecureRandom();
+        byte[] salt = new byte[16];
+        random.nextBytes(salt);
+        return salt;
     }
 }
