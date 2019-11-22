@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
             sharedPreferences.edit().putString("salt", new String(newSalt, StandardCharsets.UTF_8)).apply();
         }
 
+
         btnUnlockNote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
