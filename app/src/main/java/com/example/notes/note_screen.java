@@ -16,6 +16,7 @@ import com.google.android.material.snackbar.Snackbar;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 
+import static com.example.notes.MainActivity.hideKeyboard;
 import static com.example.notes.MainActivity.noteText;
 
 public class note_screen extends AppCompatActivity {
@@ -58,6 +59,7 @@ public class note_screen extends AppCompatActivity {
             SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("com.example.notes", Context.MODE_PRIVATE);
             @Override
             public void onClick(View view) {
+                hideKeyboard(note_screen.this);
                 noteText = note.getText().toString();
                 System.out.println(currentPass);
                 try {
