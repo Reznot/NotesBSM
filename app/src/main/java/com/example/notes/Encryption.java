@@ -5,10 +5,13 @@ import java.security.AlgorithmParameters;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.InvalidParameterSpecException;
 import java.security.spec.KeySpec;
+import java.util.Arrays;
 import java.util.Base64;
 
 import javax.crypto.Cipher;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
@@ -23,11 +26,12 @@ public class Encryption {
 
     private final String salt;
     private SecretKey secretKey;
-    byte[] iv;
+    String iv;
 
-    Encryption(String salt, String password) throws InvalidKeySpecException, NoSuchAlgorithmException {
+    Encryption(String salt, String password, String iv) throws InvalidKeySpecException, NoSuchAlgorithmException {
         this.salt = salt;
         secretKey = generateKey(password);
+        this.iv = iv;
     }
 
     private SecretKey generateKey(String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
@@ -40,11 +44,23 @@ public class Encryption {
 
     public String encrypt(String toEncrypt) throws Exception {
         cipher = Cipher.getInstance(cypherInstance);
-        AlgorithmParameters params = cipher.getParameters();
-        iv = params.getParameterSpec(IvParameterSpec.class).getIV();
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey, new IvParameterSpec(iv));
-        byte[] toEncryptBytes = toEncrypt.getBytes(StandardCharsets.UTF_8);
-        byte[] cipherText = cipher.doFinal(toEncryptBytes);
+        byte[] ivBytes = Arrays.copyOfRange(iv.getBytes(StandardCharsets.UTF_8), 0, 16);
+        AlgorithmParameterSpec spec = new IvParameterSpec(ivBytes);
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey, spec);
+        byte[] cipherText = cipher.doFinal(
+                toEncrypt.getBytes(StandardCharsets.UTF_8)
+        );
         return Base64.getEncoder().encodeToString(cipherText);
+    }
+
+    public String decrypt(String toDecrypt) throws Exception {
+        cipher = Cipher.getInstance(cypherInstance);
+        byte[] ivBytes = Arrays.copyOfRange(iv.getBytes(StandardCharsets.UTF_8), 0, 16);
+        AlgorithmParameterSpec ivSpec = new IvParameterSpec(ivBytes);
+        cipher.init(javax.crypto.Cipher.DECRYPT_MODE, secretKey, ivSpec);
+        byte[] decryptedBytes = cipher.doFinal(
+                Base64.getDecoder().decode(toDecrypt)
+        );
+        return new String(decryptedBytes, StandardCharsets.UTF_8);
     }
 }

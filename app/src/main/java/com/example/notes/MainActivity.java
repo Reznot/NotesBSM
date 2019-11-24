@@ -16,6 +16,10 @@ import com.google.android.material.snackbar.Snackbar;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.InvalidParameterSpecException;
+
+import javax.crypto.NoSuchPaddingException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -44,10 +48,27 @@ public class MainActivity extends AppCompatActivity {
         final SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("com.example.notes", Context.MODE_PRIVATE);
 
         String salt = sharedPreferences.getString("salt", null);
-        System.out.println(salt);
-        if (salt == null) {
+        String iv = sharedPreferences.getString("iv", null);
+//        if (salt == null) {
             byte[] newSalt = getSalt();
             sharedPreferences.edit().putString("salt", new String(newSalt, StandardCharsets.UTF_8)).apply();
+            byte[] newIv = getIv();
+            sharedPreferences.edit().putString("iv", new String(newIv, StandardCharsets.UTF_8)).apply(); // TODO Mozna jeszcze to jakos ulepszyc
+//        }
+
+
+        try {
+            Encryption encryption = new Encryption(sharedPreferences.getString("salt", null),
+                    "siema",
+                    sharedPreferences.getString("iv", null));
+            String encrypted = encryption.encrypt("test kurwy");
+            System.out.println("encrypted");
+            System.out.println(encrypted);
+            System.out.println("decrypted");
+            System.out.println(encryption.decrypt(encrypted));
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println(e);
         }
 
 
@@ -81,5 +102,12 @@ public class MainActivity extends AppCompatActivity {
         byte[] salt = new byte[16];
         random.nextBytes(salt);
         return salt;
+    }
+
+    private static byte[] getIv() {
+        SecureRandom random = new SecureRandom();
+        byte[] iv = new byte[16];
+        random.nextBytes(iv);
+        return iv;
     }
 }
