@@ -13,6 +13,9 @@ import android.widget.EditText;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+
 public class PasswordChangeActivity extends AppCompatActivity {
 
     private EditText prevPasswwordField;
@@ -29,15 +32,28 @@ public class PasswordChangeActivity extends AppCompatActivity {
         newPasswordField = findViewById(R.id.newPassowrd);
         btnChangePassword = findViewById(R.id.confirmPasswordChangeBtn);
 
+        final SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("com.example.notes", Context.MODE_PRIVATE);
+
         btnChangePassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("com.example.notes", Context.MODE_PRIVATE);
+                String prevPassInput = prevPasswwordField.getText().toString();
+                String newPassInput = newPasswordField.getText().toString();
                 storedPassword = sharedPreferences.getString("password", null);
-                if (prevPasswwordField.getText().toString().equals(storedPassword)) {
-                    sharedPreferences.edit().putString("password", newPasswordField.getText().toString()).apply();
-                    passwordChanged();
-                } else {
+                try {
+                    Encryption decryption = new Encryption(sharedPreferences.getString("salt", null),
+                            prevPassInput,
+                            sharedPreferences.getString("iv", null));
+                    String storedPasswordDecrypted = decryption.decrypt(storedPassword);
+                    if (prevPassInput.equals(storedPasswordDecrypted)) {
+                        Encryption encryption = new Encryption(sharedPreferences.getString("salt", null),
+                                newPassInput,
+                                sharedPreferences.getString("iv", null));
+                        sharedPreferences.edit().putString("password", encryption.encrypt(newPassInput)).apply();
+                        passwordChanged();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                     Snackbar snackbarWrongPassword = Snackbar.make(view,"Podano bledne obecne haslo", Snackbar.LENGTH_LONG);
                     View sbView = snackbarWrongPassword.getView();
                     sbView.setBackgroundColor(Color.RED);

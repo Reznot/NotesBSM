@@ -79,7 +79,6 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     String passInput = passwordField.getText().toString();
                     if(storedPassword == null) {
-                        System.out.println("eh");
                         Encryption encryption = new Encryption(sharedPreferences.getString("salt", null),
                                 passInput,
                                 sharedPreferences.getString("iv", null));
@@ -92,15 +91,12 @@ public class MainActivity extends AppCompatActivity {
                                 passInput,
                                 sharedPreferences.getString("iv", null));
                         String storedPasswordDecrypted = encryption.decrypt(storedPassword);
-                        System.out.println(storedPasswordDecrypted);
                         if (storedPasswordDecrypted.equals(passInput)) {
-                            System.out.println("elo");
                             launchActivity();
                         }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    System.out.println("siema");
                     Snackbar snackbarWrongPassword = Snackbar.make(view,"Podano bledne haslo", Snackbar.LENGTH_LONG);
                     View sbView = snackbarWrongPassword.getView();
                     sbView.setBackgroundColor(Color.RED);
@@ -111,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void launchActivity() {
+        storedPassword = null;
         passwordField.setText("");
         Intent intent = new Intent(this, note_screen.class);
         startActivity(intent);
