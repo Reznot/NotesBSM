@@ -49,12 +49,12 @@ public class MainActivity extends AppCompatActivity {
 
         String salt = sharedPreferences.getString("salt", null);
         String iv = sharedPreferences.getString("iv", null);
-//        if (salt == null) {
+        if (salt == null) {
             byte[] newSalt = getSalt();
             sharedPreferences.edit().putString("salt", new String(newSalt, StandardCharsets.UTF_8)).apply();
             byte[] newIv = getIv();
             sharedPreferences.edit().putString("iv", new String(newIv, StandardCharsets.UTF_8)).apply(); // TODO Mozna jeszcze to jakos ulepszyc
-//        }
+        }
 
 
         try {
@@ -76,12 +76,31 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 storedPassword = sharedPreferences.getString("password", null);
-                if(storedPassword == null) {
-                    sharedPreferences.edit().putString("password", passwordField.getText().toString()).apply();
-                    launchActivity();
-                } else if(storedPassword.equals(passwordField.getText().toString())) {
-                    launchActivity();
-                } else {
+                try {
+                    String passInput = passwordField.getText().toString();
+                    if(storedPassword == null) {
+                        System.out.println("eh");
+                        Encryption encryption = new Encryption(sharedPreferences.getString("salt", null),
+                                passInput,
+                                sharedPreferences.getString("iv", null));
+                        sharedPreferences.edit()
+                                .putString("password", encryption.encrypt(passInput))
+                                .apply();
+                        launchActivity();
+                    } else {
+                        Encryption encryption = new Encryption(sharedPreferences.getString("salt", null),
+                                passInput,
+                                sharedPreferences.getString("iv", null));
+                        String storedPasswordDecrypted = encryption.decrypt(storedPassword);
+                        System.out.println(storedPasswordDecrypted);
+                        if (storedPasswordDecrypted.equals(passInput)) {
+                            System.out.println("elo");
+                            launchActivity();
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    System.out.println("siema");
                     Snackbar snackbarWrongPassword = Snackbar.make(view,"Podano bledne haslo", Snackbar.LENGTH_LONG);
                     View sbView = snackbarWrongPassword.getView();
                     sbView.setBackgroundColor(Color.RED);
