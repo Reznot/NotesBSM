@@ -1,25 +1,22 @@
 package com.example.notes;
 
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.snackbar.Snackbar;
 
 import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.InvalidParameterSpecException;
-
-import javax.crypto.NoSuchPaddingException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -56,25 +53,10 @@ public class MainActivity extends AppCompatActivity {
             sharedPreferences.edit().putString("iv", new String(newIv, StandardCharsets.UTF_8)).apply(); // TODO Mozna jeszcze to jakos ulepszyc
         }
 
-
-        try {
-            Encryption encryption = new Encryption(sharedPreferences.getString("salt", null),
-                    "siema",
-                    sharedPreferences.getString("iv", null));
-            String encrypted = encryption.encrypt("test kurwy");
-            System.out.println("encrypted");
-            System.out.println(encrypted);
-            System.out.println("decrypted");
-            System.out.println(encryption.decrypt(encrypted));
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println(e);
-        }
-
-
         btnUnlockNote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                hideKeyboard(MainActivity.this);
                 storedPassword = sharedPreferences.getString("password", null);
                 try {
                     String passInput = passwordField.getText().toString();
@@ -85,14 +67,14 @@ public class MainActivity extends AppCompatActivity {
                         sharedPreferences.edit()
                                 .putString("password", encryption.encrypt(passInput))
                                 .apply();
-                        launchActivity();
+                        launchActivity(passInput);
                     } else {
                         Encryption encryption = new Encryption(sharedPreferences.getString("salt", null),
                                 passInput,
                                 sharedPreferences.getString("iv", null));
                         String storedPasswordDecrypted = encryption.decrypt(storedPassword);
                         if (storedPasswordDecrypted.equals(passInput)) {
-                            launchActivity();
+                            launchActivity(passInput);
                         }
                     }
                 } catch (Exception e) {
@@ -106,10 +88,11 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void launchActivity() {
+    private void launchActivity(String passInput) {
+        Intent intent = new Intent(this, note_screen.class);
+        intent.putExtra("currentPass", passInput);
         storedPassword = null;
         passwordField.setText("");
-        Intent intent = new Intent(this, note_screen.class);
         startActivity(intent);
     }
 
@@ -125,5 +108,17 @@ public class MainActivity extends AppCompatActivity {
         byte[] iv = new byte[16];
         random.nextBytes(iv);
         return iv;
+    }
+
+    public static void hideKeyboard(Activity activity) {
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //Find the currently focused view, so we can grab the correct window token from it.
+        View view = activity.getCurrentFocus();
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        if (view == null) {
+            view = new View(activity);
+        }
+        assert imm != null;
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }
