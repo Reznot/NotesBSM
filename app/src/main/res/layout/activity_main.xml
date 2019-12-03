@@ -23,6 +23,14 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.513" />
 
+    <Button
+        android:id="@+id/selectFingerPrintButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="20dp"
+        android:text="@string/odcisk_palca" />
+
     <EditText
         android:id="@+id/passwordField"
         style="@style/Widget.AppCompat.AutoCompleteTextView"
