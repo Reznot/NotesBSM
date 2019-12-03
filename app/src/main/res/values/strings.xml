@@ -7,5 +7,6 @@
     <string name="prevPassword">Obecne haslo</string>
     <string name="newPassword">Nowe haslo</string>
     <string name="note">Pusta notatka</string>
-    <string name="odcisk_palca">Odcisk Palca</string>
+    <string name="fingerprint">Odblokuj</string>
+    <string name="title_activity_fingerprint_authentication">Fingerprint_authentication</string>
 </resources>
